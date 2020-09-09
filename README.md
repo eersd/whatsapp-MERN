@@ -11,7 +11,7 @@ To run the frontend locally:
 
 To run the backend:
 - Go to whatsapp-backend directory
-- `nodemon server.js` to install the required dependencies
+- `nodemon server.js` to run the backend
 
 ## Functionality overview
 
