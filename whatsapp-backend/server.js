@@ -1,4 +1,4 @@
-// import
+ // import
 import express from "express";
 import mongoose from 'mongoose';
 import Messages from "./dbMessages.js";
@@ -7,7 +7,7 @@ import cors from 'cors';
 
 // app config
 const app = express();
-const port = process.env.port || 9000;
+const port = process.env.PORT || 9000;
 
 const pusher = new Pusher({
     appId: '1068681',
@@ -51,6 +51,7 @@ db.once("open", () => {
             const messageDetails = change.fullDocument;
             pusher.trigger('messages', 'inserted',
                 {
+                    room: messageDetails.room,
                     name: messageDetails.name,
                     message: messageDetails.message,
                     timestamp: messageDetails.timestamp,
@@ -67,14 +68,25 @@ db.once("open", () => {
 app.get('/', (req,res) => res.status(200).send('hello world'));
 
 app.get('/messages/sync', (req,res) => {
-    Messages.find((err, data) => {
+    Messages.find({ room: { $ne: null } }, (err,data) =>{
+    //Messages.find((err, data) => {
         if (err){
             res.status(500).send(err);
         }else{
             res.status(200).send(data);
         }
     })
-})
+});
+
+app.get('/rooms', (req,res) => {
+    Messages.collection.distinct("room", (err,data) =>{
+        if (err){
+            res.status(500).send(err);
+        }else{
+            res.status(200).send(data);
+        }
+    });
+});
 
 app.post('/messages/new', (req,res) => {
     const dbMessage = req.body;
@@ -86,7 +98,7 @@ app.post('/messages/new', (req,res) => {
             res.status(201).send(data);
         }
     })
-})
+});
 
 //listen
 

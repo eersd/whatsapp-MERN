@@ -8,13 +8,14 @@ import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import MicIcon from '@material-ui/icons/Mic';
 import axios from "./axios";
 
-function Chat({messages,email}) {
+function Chat({messages,email,room}) {
 
     const [input, setInput] = useState('');
     const sendMessage = async (e) => {
         e.preventDefault();
 
         await axios.post('/messages/new', {
+            "room": room,
             "message": input,
             "name": email,
             "timestamp": "Just now",
@@ -29,7 +30,7 @@ function Chat({messages,email}) {
             <div className="chat__header">
                 <Avatar/>
                 <div className="chat__headerInfo">
-                    <h3>Room Name</h3>
+                    <h3>{room}</h3>
                     <p>Last seen</p>
                 </div>
                 <div className="chat__headerRight">
@@ -48,9 +49,10 @@ function Chat({messages,email}) {
 
             <div className="chat__body">
                 {messages.map((message) => (
-                    <p key={message._id}
+                    (message.name === email) ? (
+                        <p key={message._id}
                         
-                        className={`chat__message ${message.received && "chat__receiver"}`} 
+                        className={`chat__message `} 
                     > 
                         <span className="chat__name"> {message.name}</span>
                         {message.message}
@@ -58,19 +60,24 @@ function Chat({messages,email}) {
                             {message.timestamp}    
                         </span>    
                     
-                    </p>
+                        </p>
+                    ): (
+                        <p className="chat__message chat__receiver"> 
+                            <span className="chat__name"> {message.name}</span>
+                            {message.message}
+                            <span className="chat__timestamp">
+                                {new Date().toUTCString()}    
+                            </span>    
+                        
+                        </p>
+                        
+                    )
+
 
                 ))};
                 
 
-                <p className="chat__message chat__receiver"> 
-                    <span className="chat__name"> User2</span>
-                    This is a very very long message
-                    <span className="chat__timestamp">
-                        {new Date().toUTCString()}    
-                    </span>    
                 
-                </p>
 
 
             </div>

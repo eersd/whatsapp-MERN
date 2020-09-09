@@ -1,25 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Sidebar.css';
 import { IconButton, Avatar } from '@material-ui/core';
 import DonutLargeIcon from '@material-ui/icons/DonutLarge';
 import ChatIcon from '@material-ui/icons/Chat';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import SearchOutlined from '@material-ui/icons/SearchOutlined';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import SidebarChat from './SidebarChat';
+
 import { auth } from './firebase';
+import axios from './axios';
 
-function Sidebar({email}) {
+function Sidebar({email,messages}) {
 
-    const [chatIcon, setChatIcon] = useState(false);
+    const [rooms, setRooms] = useState([]);
+
     
     const signOut = () => {
         auth.signOut();
     }
 
-    const showFriends = () => {
+    useEffect(() => {
+        //axios.get("/rooms").then((response) => {
+        axios.get("/rooms").then((response) => {
+          setRooms(response.data);
+        });
+      });
 
-    }
 
     return (
         <div className="sidebar">
@@ -35,7 +41,7 @@ function Sidebar({email}) {
                     <IconButton>
                         <DonutLargeIcon/>
                     </IconButton>
-                    <IconButton onClick={showFriends}>
+                    <IconButton>
                         <ChatIcon />
                     </IconButton>
                     <IconButton onClick={signOut}>
@@ -60,14 +66,65 @@ function Sidebar({email}) {
                     <input placeholder="Search or start new chat" type="text"></input> 
                 </div>
             </div>
-
+                        
+            {/**
             <div className="sidebar__chats">
-                <SidebarChat/>
-                <SidebarChat/>
-
+                
+                <SidebarChat addNewChat/>
+                {rooms.map((room) => (
+                    <SidebarChat cRoom={room}/>
+                ))};
             </div>
+             */}    
+
+                <div className="sidebar__chats">
+                        <SidebarChat addNewChat/>
+                        {rooms.map((room) => (
+                            <SidebarChat id={room._id} room={room}/>
+                        ))};
+
+                </div>
+                
+                {/** 
+                <Router>
+                    <div className="sidebar__chats">
+                        <Switch>
+                            <Route path="/dev">
+                                <SidebarChat room="Dev Room"/>
+                            </Route>
+                            <Route path="/chill">
+                                <SidebarChat room="Chill Room"/>
+                            </Route>
+                        </Switch>
+                    <SidebarChat room="Dev Room"/>
+                    <SidebarChat room="Chill Room"/>
+
+                    </div>
+                </Router>
+                */
+                }
+                {
+                    /**
+                     * {rooms.map((room) => (
+                        <p key={room._id}
+                            
+                            className={`chat__message ${message.received && "chat__receiver"}`} 
+                        > 
+                        <span className="chat__name"> {message.name}</span>
+                        {message.message}
+                        <span className="chat__timestamp">
+                            {message.timestamp}    
+                        </span>   
+                     * {rooms.map(room => {
+                     *  <SidebarChat key={room.id} id={room.id} name={room.data.name}
+                     * />
+                     * ))}
+                     */
+                }
+                
+
         </div>
     )
 }
 
-export default Sidebar
+export default Sidebar;
