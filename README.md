@@ -8,10 +8,30 @@ To run the frontend locally:
 - Go to whatsapp-mern directory
 - `npm install` to install the required dependencies
 - `npm start` to start the local server on port 3000
+- Edit the axios.js file accordingly to setup your endpoint url
 
 To run the backend:
 - Go to whatsapp-backend directory
+- `npm install` to install dependencies
 - `nodemon server.js` to run the backend
+
+Tools or APIs used for this project:
+frontend :
+react.js : lightweight Javascript library by Facebook
+react-router-dom : mainly to navigate or routing
+axios : Javascript library to make HTTP requests
+firebase : used for authentication
+
+
+backend :
+node.js : Javascript run time environment that runs outside of browser.
+express : nodejs framework that provides robust features for web development.
+cors : enables open access across domain boundaries.
+mongoDb : NoSQL DB.
+mongoose : mongoDB Object modelling.
+pusher : mongoDB is not a real-time database, therefore pusher-API (similar to socket.io) is used to forward any changes in DB. 
+Postman : simplifies HTTP methods to test mongoose commands as well as test DB.
+
 
 ## Functionality overview
 
@@ -20,11 +40,11 @@ This project is created mainly for education purposes. This project aims to repl
 **Features**
 
 - User authentication via Firebase
-- Able to send message
-- MongoDB is not a real-time database, therefore pusher-API is used to forward any changes in DB.
-- Postman-API simplifies HTTP GET and POST methods and is used in order to make backend testing easier
+- Able to send messages in a chat room
+- Create rooms and join the ones you like
 
 **Issues to be fixed**
 
-- Currently the messages are not divided into different chat rooms.
-- Add friend feature will also be implemented
+- Chat view should scroll down to newest message
+- Leave room to be implemented
+- maybe add friends as well
