@@ -71,13 +71,30 @@ db.once("open", () => {
             console.log('Error triggering Pusher');
         }
     });
+
+    const roomCollection = db.collection("rooms");
+    const changeStreamRooms = roomCollection.watch();
+
+    changeStreamRooms.on("change", (change) => {
+        console.log(change);
+
+        if(change.operationType === 'insert') {
+            const messageDetails = change.fullDocument;
+            pusher.trigger('rooms', 'inserted',
+                {
+                    name: messageDetails.name
+                }
+            );
+        } else{
+            console.log('Error triggering Pusher');
+        }
+    });
 });
 
 // api route
 app.get('/', (req,res) => res.status(200).send('hello world'));
 
 app.get('/messages/sync', (req,res) => {
-    //Messages.find({ room: { $ne: null } }, (err,data) =>{
     Messages.find((err, data) => {
         if (err){
             res.status(500).send(err);
@@ -94,16 +111,11 @@ app.get('/messages/room', (req,res) => {
         }else{
             res.status(200).send(data);
         }
-    /*
-    Messages.find({ room: req.body }).then((posts) =>{
-        res.send(JSON.stringify(posts));
-        */
     }) //where req.session.user is an id (the logged in user's object id or _id)
 })
 
 app.get('/rooms/id', (req, res) => {
 	Rooms.findById(req.query, (err, data) => {
-		// finds all the data from the database and return them
 		if (err) {
 			res.status(500).send(err); // 500 internal server error
 		} else {
@@ -114,7 +126,6 @@ app.get('/rooms/id', (req, res) => {
 
 app.get('/rooms/first', (req, res) => {
 	Rooms.findOne((err, data) => {
-		// finds all the data from the database and return them
 		if (err) {
 			res.status(500).send(err); // 500 internal server error
 		} else {
@@ -132,6 +143,17 @@ app.get('/rooms', (req,res) => {
             res.status(200).send(data);
         }
     });
+});
+
+app.get('/messages/one', (req,res) => {
+    Messages.findOne(req.query,{},{sort:{'timestamp':-1}} ,(err,data) =>{
+        console.log("find One message req = ", res);
+        if (err){
+            res.status(500).send(err);
+        }else{
+            res.status(200).send(data);
+        }
+    })
 });
 
 app.post('/rooms/new', (req,res) => {

@@ -53,47 +53,4 @@ function Sidebar({email,rooms}) {
 }
 
 export default Sidebar;
-
-                /**
-                <MoreVertIcon/>
-                {moreVertOpen && (
-                    <div className="chat__container" class="dropdown">
-                        <ul>
-                        <li onClick={signOut}>Sign Out</li>
-                        </ul>
-                    </div>
-                )}
-                    *//** 
-                <Router>
-                    <div className="sidebar__chats">
-                        <Switch>
-                            <Route path="/dev">
-                                <SidebarChat room="Dev Room"/>
-                            </Route>
-                            <Route path="/chill">
-                                <SidebarChat room="Chill Room"/>
-                            </Route>
-                        </Switch>
-                    <SidebarChat room="Dev Room"/>
-                    <SidebarChat room="Chill Room"/>
-
-                    </div>
-                </Router>
-                */
-                    /**
-                     * {rooms.map((room) => (
-                        <p key={room._id}
-                            
-                            className={`chat__message ${message.received && "chat__receiver"}`} 
-                        > 
-                        <span className="chat__name"> {message.name}</span>
-                        {message.message}
-                        <span className="chat__timestamp">
-                            {message.timestamp}    
-                        </span>   
-                     * {rooms.map(room => {
-                     *  <SidebarChat key={room.id} id={room.id} name={room.data.name}
-                     * />
-                     * ))}
-                     */
                 

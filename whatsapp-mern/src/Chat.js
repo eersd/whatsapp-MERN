@@ -14,46 +14,47 @@ function Chat({email, currentRoomObject}) {
 
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
-    const [currentRoomState, setCurrentRoomState] = useState(currentRoomObject.name);
+    const [currRoomState, setCurrRoomState] = useState(currentRoomObject.name);
     const {roomId} = useParams(currentRoomObject._id);
+    const [latestMessage, setLatestMessage] = useState([]);
 
-    
+    useEffect(()=> {
+        
+        axios.get('/messages/one',{params: {"room": currRoomState}}).then((response) => {
+            setLatestMessage(response.data);
+            console.log("Chat latest ,",response.data);
+        });
+    },[roomId]);
+
     const sendMessage = async (e) => {
         e.preventDefault();
-        console.log("roomState in axios Post",currentRoomState);
+        console.log("roomState in axios Post",currRoomState);
+        console.log("roomState in axios Post",currentRoomObject.name);
 
         await axios.post('/messages/new', {
-            "room": currentRoomState.name,
+            "room": currRoomState,
             "message": input,
             "name": email,
             "timestamp": new Date().toUTCString(),
-            "received": false,
+            "received": true,
         });
         setInput("");
     };
     
     useEffect(()=> {
         axios.get('/rooms/id',{params: {"_id": roomId}}).then((response) => {
-            setCurrentRoomState(response.data);
+            setCurrRoomState(response.data.name);
             console.log("currentRooms ,",response.data);
         });
     },[roomId]);
     
-    /*
-    useEffect(() => {
-        //axios.get("/rooms").then((response) => {
-        axios.get("/messages/sync").then((response) => {
-          setMessages(response.data);
-        });
-      });
-    */
    useEffect(() => {
-        axios.get('messages/room',{params: {"room": currentRoomState.name}}).then((response) => {
+        axios.get('messages/room',{params: {"room": currRoomState}}).then((response) => {
             setMessages(response.data);
             console.log("messagesCHa,",response.data);
-            console.log("currentRoomState ",currentRoomState.name);
+            console.log("currentRoomState ",currRoomState.name);
         });
-    }, [currentRoomState]);
+    }, [currRoomState]);
     
     useEffect(() => {
 
@@ -62,10 +63,15 @@ function Chat({email, currentRoomObject}) {
         });
 
         console.log("pusher pushed");
-        const channel = pusher.subscribe("/messages/");
+        const channel = pusher.subscribe("messages");
         channel.bind('inserted', (newMessage) => {
             alert(JSON.stringify(newMessage));
-            setMessages([...messages, newMessage]);
+            if(newMessage.room === currRoomState){
+                setMessages([...messages, newMessage]);
+            }else{
+                console.log("not for this room");
+            }
+            
         });
 
         return () => {
@@ -73,8 +79,7 @@ function Chat({email, currentRoomObject}) {
             channel.unsubscribe();
         }
     }, [messages]);
-    
-    
+
 
     return (
         <div className="chat">
@@ -82,8 +87,8 @@ function Chat({email, currentRoomObject}) {
             <div className="chat__header">
                 <Avatar/>
                 <div className="chat__headerInfo">
-                    <h3>{currentRoomState.name}</h3>
-                    <p>Last seen</p>
+                    <h3>{currRoomState}</h3>
+                    <p>{latestMessage.timestamp}</p>
                 </div>
                 <div className="chat__headerRight">
                     <IconButton>
@@ -99,34 +104,36 @@ function Chat({email, currentRoomObject}) {
                 </div>
             </div>
 
-            <div className="chat__body">
-                {messages.map((message) => (
-                    (message.name === email) ? (
-                        <p key={message._id}
-                        
-                        className={`chat__message `} 
-                        > 
-                        <span className="chat__name"> {message.name}</span>
-                        {message.message}
-                        <span className="chat__timestamp">
-                            {message.timestamp}    
-                        </span>    
-                    
-                        </p>
-                    ): (
-                        <p key={message._id} className="chat__message chat__receiver"> 
+            {
+                <div className="chat__body">
+                    {messages.map((message) => (
+                        (message.name === email) ? (
+                            <p key={message._id}
+                            
+                            className={`chat__message `} 
+                            > 
                             <span className="chat__name"> {message.name}</span>
                             {message.message}
                             <span className="chat__timestamp">
-                                {new Date().toUTCString()}    
+                                {message.timestamp}    
                             </span>    
                         
-                        </p>
-                        
-                    )
-                ))}
+                            </p>
+                        ): (
+                            <p key={message._id} className="chat__message chat__receiver"> 
+                                <span className="chat__name"> {message.name}</span>
+                                {message.message}
+                                <span className="chat__timestamp">
+                                    {new Date().toUTCString()}    
+                                </span>    
+                            
+                            </p>
+                            
+                        )
+                    ))}
+                </div>
 
-            </div>
+            }
 
             <div className="chat__footer">
                 <IconButton>

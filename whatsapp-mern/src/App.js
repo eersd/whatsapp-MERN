@@ -10,7 +10,7 @@ import {
   Switch,
   Route
 } from "react-router-dom";
-//import { useStateValue } from './StateProvider';
+import Pusher from 'pusher-js';
 
 
 function App() {
@@ -18,18 +18,6 @@ function App() {
   const [rooms, setRooms] = useState([]);
   const [currentRoom, setCurrentRoom] = useState('');
   const [user, setUser] = useState(null);
-  //const [rooms, setRooms] = useState('Dev Room');
-
-  /*
-  getRooms = () => {
-    axios.get("/rooms")
-      .then((response) => {
-        const data = response.data;
-        this.setState({rooms: data});
-        console.log('Data received');
-      })
-  }
-  */
 
   useEffect(() => {
     axios.get('/rooms').then((response) => {
@@ -38,6 +26,24 @@ function App() {
       setRooms(response.data);
     });
   }, []);
+
+  useEffect(() => {
+
+    const pusher = new Pusher('a692f130cf06402ee20f', {
+        cluster: 'eu'
+    });
+
+    console.log("pusher pushed");
+    const channel = pusher.subscribe("rooms");
+    channel.bind('inserted', (newRoom) => {
+        setRooms([...rooms, newRoom]);
+    });
+
+    return () => {
+        channel.unbind_all();
+        channel.unsubscribe();
+    }
+}, [rooms]);
 
   useEffect(() => {
 		axios.get('/rooms/first').then((response) => {
@@ -61,32 +67,35 @@ function App() {
 
   return (
     <div className="app">
+      {console.log("roomsValidation :" , rooms)}
+      {console.log("current Room in App : ", currentRoom)}
       
-    {user && currentRoom ? (
-      
-      <div className="app__inner">
+      {user && currentRoom ? (
+        
+        
+        <div className="app__inner">
 
-        <div className="app__body">
-          <Router>
-            <Sidebar email={user.email} rooms={rooms}/>
-            <Switch>
-              <Route path="/rooms/:roomId">
-                {console.log("app currentRoom",currentRoom.name)}
-                <Chat email={user.email} currentRoomObject={currentRoom}/>
-                {/**
-              <Chat email={user.email} currentRoom={currentRoom.name}/>
-               */}
-              </Route>
-            </Switch>
-          </Router>
+          <div className="app__body">
+            <Router>
+              <Sidebar email={user.email} rooms={rooms}/>
+              <Switch>
+                <Route path="/rooms/:roomId">
+                  {console.log("app first",currentRoom.name)}
+                  <Chat email={user.email} currentRoomObject={currentRoom}/>
+                </Route>
+                <Route path="/">
+                  <Chat email={user.email} currentRoomObject={currentRoom}/>
+                </Route>
+              </Switch>
+            </Router>
+
+          </div>
 
         </div>
-
-      </div>
-    ): (
-      
-      <Login/>
-    )}
+      ): (
+        
+        <Login/>
+      )}
 
     
       

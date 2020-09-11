@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import './Login.css';
 import {auth} from './firebase';
-import { useHistory } from 'react-router-dom';
-//import { useStateValue } from './StateProvider';
 
 
 function Login() {
-    const history = useHistory();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -15,7 +12,6 @@ function Login() {
         auth
             .signInWithEmailAndPassword(email, password)
             .then( (auth) => {
-                history.push("/");
                 // logged in, redirect to home
             })
             .catch((e) => alert(e.message));
@@ -27,7 +23,6 @@ function Login() {
         auth
             .createUserWithEmailAndPassword(email, password)
             .then(auth => {
-                history.push("/");
                 // created user and logged in, redirect to home
 
             })
