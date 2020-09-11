@@ -1,5 +1,11 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+A live demo of the frontend application is available at :
+https://whatsapp-mern.netlify.app/
+
+and the backend is hosted in :
+https://whatsapp-mern-eersd-backend.herokuapp.com/
+
 ## Getting started
 
 To run the frontend locally:
