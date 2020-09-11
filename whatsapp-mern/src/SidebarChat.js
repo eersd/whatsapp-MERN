@@ -4,34 +4,31 @@ import { Avatar } from '@material-ui/core';
 import axios from './axios';
 import { Link } from 'react-router-dom';
 
-function SidebarChat({id,room,addNewChat}) {
+function SidebarChat({id,roomName,addNewChat}) {
 
-    const createChat = () => {
+    console.log("inSidebarChat1");
+        
+    const createChat = async(e) => {
+        e.preventDefault();
         const roomName = prompt("Please enter name for chat");
 
-        if (roomName){
-            axios.post('/messages/new', {
-                "room": roomName,
-                "message": "You have joined this chat room",
-                "name": "Admin",
-                "timestamp": "",
-                "received": false,
-            });
-        }
+        await axios.post('/messages/new', {
+            room: roomName,
+        });
 
     };
-
+    
     return !addNewChat ?(
+        
         <Link to={`/rooms/${id}`}>
-        <div className="sidebarChat">
-            <Avatar/>
-            <div className="sidebarChat__info">
-                {console.log("sidebarchat room = ", room)}
-                <h2>{room}</h2>
-                <p> Last message</p>
+            <div className="sidebarChat">
+                <Avatar/>
+                <div className="sidebarChat__info">
+                    <h2>{roomName}</h2>
+                    <p> Last message</p>
 
+                </div>
             </div>
-        </div>
         </Link>
     ):(
         <div onClick={createChat} className="sidebarChat">
@@ -40,6 +37,16 @@ function SidebarChat({id,room,addNewChat}) {
             </div>
         </div>
     );
+    
+        /*
+        <div className="sidebarChat">
+             <Avatar />
+             <div className="sidebarChat__info">
+                 <h2>{}</h2>
+                 <p>This is the last message</p>
+             </div>
+        </div>
+        */
     
 }
 

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import './Login.css';
 import {auth} from './firebase';
+import { useHistory } from 'react-router-dom';
+//import { useStateValue } from './StateProvider';
 
 
 function Login() {
-    
+    const history = useHistory();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -13,7 +15,7 @@ function Login() {
         auth
             .signInWithEmailAndPassword(email, password)
             .then( (auth) => {
-                //history.push("/");
+                history.push("/");
                 // logged in, redirect to home
             })
             .catch((e) => alert(e.message));
@@ -25,7 +27,7 @@ function Login() {
         auth
             .createUserWithEmailAndPassword(email, password)
             .then(auth => {
-                //history.push("/");
+                history.push("/");
                 // created user and logged in, redirect to home
 
             })
@@ -52,7 +54,7 @@ function Login() {
                 </form>
 
                 <p>
-                    By continuing, you agree to Amazon's Conditions of Use and Privacy Notice.
+                    By continuing, you agree to whatsApp's Conditions of Use and Privacy Notice.
                 </p>
 
                 <button onClick={register} className="login__registerButton"> Create Whatsapp account</button>

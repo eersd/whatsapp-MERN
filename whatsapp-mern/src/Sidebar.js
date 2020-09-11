@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './Sidebar.css';
 import { IconButton, Avatar } from '@material-ui/core';
 import DonutLargeIcon from '@material-ui/icons/DonutLarge';
@@ -8,24 +8,12 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import SidebarChat from './SidebarChat';
 
 import { auth } from './firebase';
-import axios from './axios';
 
-function Sidebar({email,messages}) {
+function Sidebar({email,rooms}) {
 
-    const [rooms, setRooms] = useState([]);
-
-    
     const signOut = () => {
         auth.signOut();
     }
-
-    useEffect(() => {
-        //axios.get("/rooms").then((response) => {
-        axios.get("/rooms").then((response) => {
-          setRooms(response.data);
-        });
-      });
-
 
     return (
         <div className="sidebar">
@@ -36,8 +24,6 @@ function Sidebar({email,messages}) {
                     <h4>{email}</h4>
                 </div>
                 <div className="sidebar__headerRight">
-                    
-                    
                     <IconButton>
                         <DonutLargeIcon/>
                     </IconButton>
@@ -46,16 +32,6 @@ function Sidebar({email,messages}) {
                     </IconButton>
                     <IconButton onClick={signOut}>
                         <ExitToAppIcon />
-                        {/**
-                        <MoreVertIcon/>
-                        {moreVertOpen && (
-                            <div className="chat__container" class="dropdown">
-                                <ul>
-                                <li onClick={signOut}>Sign Out</li>
-                                </ul>
-                            </div>
-                        )}
-                         */}
                     </IconButton>
                     
                 </div>
@@ -66,26 +42,28 @@ function Sidebar({email,messages}) {
                     <input placeholder="Search or start new chat" type="text"></input> 
                 </div>
             </div>
-                        
-            {/**
             <div className="sidebar__chats">
-                
                 <SidebarChat addNewChat/>
                 {rooms.map((room) => (
-                    <SidebarChat cRoom={room}/>
+                    <SidebarChat key={room._id} id={room._id} roomName={room.name}/>
                 ))};
             </div>
-             */}    
+        </div>
+    )
+}
 
-                <div className="sidebar__chats">
-                        <SidebarChat addNewChat/>
-                        {rooms.map((room) => (
-                            <SidebarChat id={room._id} room={room}/>
-                        ))};
+export default Sidebar;
 
-                </div>
-                
-                {/** 
+                /**
+                <MoreVertIcon/>
+                {moreVertOpen && (
+                    <div className="chat__container" class="dropdown">
+                        <ul>
+                        <li onClick={signOut}>Sign Out</li>
+                        </ul>
+                    </div>
+                )}
+                    *//** 
                 <Router>
                     <div className="sidebar__chats">
                         <Switch>
@@ -102,8 +80,6 @@ function Sidebar({email,messages}) {
                     </div>
                 </Router>
                 */
-                }
-                {
                     /**
                      * {rooms.map((room) => (
                         <p key={room._id}
@@ -120,11 +96,4 @@ function Sidebar({email,messages}) {
                      * />
                      * ))}
                      */
-                }
                 
-
-        </div>
-    )
-}
-
-export default Sidebar;

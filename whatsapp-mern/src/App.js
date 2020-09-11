@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Sidebar from './Sidebar';
 import Chat from './Chat';
-import Pusher from 'pusher-js';
 import axios from './axios';
 import Login from './Login.js';
 import { auth } from './firebase';
@@ -11,15 +10,15 @@ import {
   Switch,
   Route
 } from "react-router-dom";
+//import { useStateValue } from './StateProvider';
 
 
 function App() {
 
-  const [messages, setMessages] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [currentRoom, setCurrentRoom] = useState('');
   const [user, setUser] = useState(null);
   //const [rooms, setRooms] = useState('Dev Room');
-  const [roomsMessage,setRoomsMessage] = useState('');
-  const room = 'Dev Room';
 
   /*
   getRooms = () => {
@@ -33,29 +32,19 @@ function App() {
   */
 
   useEffect(() => {
-    //axios.get("/rooms").then((response) => {
-    axios.get("/messages/sync").then((response) => {
-      setMessages(response.data);
+    axios.get('/rooms').then((response) => {
+
+      console.log("roooms",response.data);
+      setRooms(response.data);
     });
-  });
+  }, []);
 
   useEffect(() => {
-    const pusher = new Pusher('a92d915a7c10ae780982', {
-      cluster: 'eu',
-    });
-
-    const channel = pusher.subscribe("messages");
-    channel.bind('inserted', (newMessage) => {
-      alert(JSON.stringify(newMessage));
-      setMessages([...messages, newMessage]);
-    });
-
-    return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
-    }
-  }, [messages]);
-
+		axios.get('/rooms/first').then((response) => {
+      setCurrentRoom(response.data);
+      console.log("room,",response.data);
+		});
+	}, []);
 
   useEffect(() => {
     auth.onAuthStateChanged((authUser) => {
@@ -73,19 +62,20 @@ function App() {
   return (
     <div className="app">
       
-    {user ? (
+    {user && currentRoom ? (
+      
       <div className="app__inner">
 
         <div className="app__body">
           <Router>
-
-            <Sidebar email={user.email} messages={messages}/>
+            <Sidebar email={user.email} rooms={rooms}/>
             <Switch>
               <Route path="/rooms/:roomId">
-                <Chat messages={messages} email={user.email} room={room}/>
-              </Route>
-              <Route path="/">
-                <Chat messages={messages} email={user.email} room={room}/>
+                {console.log("app currentRoom",currentRoom.name)}
+                <Chat email={user.email} currentRoomObject={currentRoom}/>
+                {/**
+              <Chat email={user.email} currentRoom={currentRoom.name}/>
+               */}
               </Route>
             </Switch>
           </Router>

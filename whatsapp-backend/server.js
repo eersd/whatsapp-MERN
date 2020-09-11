@@ -2,6 +2,7 @@
 import express from "express";
 import mongoose from 'mongoose';
 import Messages from "./dbMessages.js";
+import Rooms from "./dbRooms.js";
 import Pusher from "pusher";
 import cors from 'cors';
 
@@ -9,13 +10,21 @@ import cors from 'cors';
 const app = express();
 const port = process.env.PORT || 9000;
 
+//const server = require("http").createServer(app);
+/*
+server.listen(port, () => {
+  console.log(`Socket is listening on port ${port}`);
+});
+*/
+
 const pusher = new Pusher({
-    appId: '1068681',
-    key: 'a92d915a7c10ae780982',
-    secret: 'fcc80b6cb85ab46f4134',
+    appId: '1070545',
+    key: 'a692f130cf06402ee20f',
+    secret: '1e7009dead937e4b49b3',
     cluster: 'eu',
     encrypted: true
-  });
+});
+
 
 // middleware
 app.use(express.json());
@@ -68,8 +77,8 @@ db.once("open", () => {
 app.get('/', (req,res) => res.status(200).send('hello world'));
 
 app.get('/messages/sync', (req,res) => {
-    Messages.find({ room: { $ne: null } }, (err,data) =>{
-    //Messages.find((err, data) => {
+    //Messages.find({ room: { $ne: null } }, (err,data) =>{
+    Messages.find((err, data) => {
         if (err){
             res.status(500).send(err);
         }else{
@@ -78,14 +87,63 @@ app.get('/messages/sync', (req,res) => {
     })
 });
 
+app.get('/messages/room', (req,res) => {
+    Messages.find( req.query, (err,data) =>{
+        if (err){
+            res.status(500).send(err);
+        }else{
+            res.status(200).send(data);
+        }
+    /*
+    Messages.find({ room: req.body }).then((posts) =>{
+        res.send(JSON.stringify(posts));
+        */
+    }) //where req.session.user is an id (the logged in user's object id or _id)
+})
+
+app.get('/rooms/id', (req, res) => {
+	Rooms.findById(req.query, (err, data) => {
+		// finds all the data from the database and return them
+		if (err) {
+			res.status(500).send(err); // 500 internal server error
+		} else {
+			res.status(200).send(data); // 200 this is a OK status
+		}
+	});
+});
+
+app.get('/rooms/first', (req, res) => {
+	Rooms.findOne((err, data) => {
+		// finds all the data from the database and return them
+		if (err) {
+			res.status(500).send(err); // 500 internal server error
+		} else {
+			res.status(200).send(data); // 200 this is a OK status
+		}
+	});
+});
+
+
 app.get('/rooms', (req,res) => {
-    Messages.collection.distinct("room", (err,data) =>{
+    Rooms.find({ name: { $ne: null } }, (err,data) =>{
         if (err){
             res.status(500).send(err);
         }else{
             res.status(200).send(data);
         }
     });
+});
+
+app.post('/rooms/new', (req,res) => {
+    const dbRooms = req.body;
+
+    Rooms.create(dbRooms, (err, data) => {
+        if (err){
+            res.status(500).send(err);
+        }else{
+            res.status(201).send(data);
+        }
+    })
 });
 
 app.post('/messages/new', (req,res) => {
@@ -99,6 +157,7 @@ app.post('/messages/new', (req,res) => {
         }
     })
 });
+
 
 //listen
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Chat.css';
 import { Avatar, IconButton } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -7,30 +7,82 @@ import SearchIcon from '@material-ui/icons/Search';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import MicIcon from '@material-ui/icons/Mic';
 import axios from "./axios";
+import Pusher from 'pusher-js';
+import {useParams} from "react-router-dom";
 
-function Chat({messages,email,room}) {
+function Chat({email, currentRoomObject}) {
 
     const [input, setInput] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [currentRoomState, setCurrentRoomState] = useState(currentRoomObject.name);
+    const {roomId} = useParams(currentRoomObject._id);
+
+    
     const sendMessage = async (e) => {
         e.preventDefault();
+        console.log("roomState in axios Post",currentRoomState);
 
         await axios.post('/messages/new', {
-            "room": room,
+            "room": currentRoomState.name,
             "message": input,
             "name": email,
-            "timestamp": "Just now",
+            "timestamp": new Date().toUTCString(),
             "received": false,
         });
-
         setInput("");
     };
+    
+    useEffect(()=> {
+        axios.get('/rooms/id',{params: {"_id": roomId}}).then((response) => {
+            setCurrentRoomState(response.data);
+            console.log("currentRooms ,",response.data);
+        });
+    },[roomId]);
+    
+    /*
+    useEffect(() => {
+        //axios.get("/rooms").then((response) => {
+        axios.get("/messages/sync").then((response) => {
+          setMessages(response.data);
+        });
+      });
+    */
+   useEffect(() => {
+        axios.get('messages/room',{params: {"room": currentRoomState.name}}).then((response) => {
+            setMessages(response.data);
+            console.log("messagesCHa,",response.data);
+            console.log("currentRoomState ",currentRoomState.name);
+        });
+    }, [currentRoomState]);
+    
+    useEffect(() => {
+
+        const pusher = new Pusher('a692f130cf06402ee20f', {
+            cluster: 'eu'
+        });
+
+        console.log("pusher pushed");
+        const channel = pusher.subscribe("/messages/");
+        channel.bind('inserted', (newMessage) => {
+            alert(JSON.stringify(newMessage));
+            setMessages([...messages, newMessage]);
+        });
+
+        return () => {
+            channel.unbind_all();
+            channel.unsubscribe();
+        }
+    }, [messages]);
+    
+    
 
     return (
         <div className="chat">
+            {console.log("inCHat")}
             <div className="chat__header">
                 <Avatar/>
                 <div className="chat__headerInfo">
-                    <h3>{room}</h3>
+                    <h3>{currentRoomState.name}</h3>
                     <p>Last seen</p>
                 </div>
                 <div className="chat__headerRight">
@@ -53,7 +105,7 @@ function Chat({messages,email,room}) {
                         <p key={message._id}
                         
                         className={`chat__message `} 
-                    > 
+                        > 
                         <span className="chat__name"> {message.name}</span>
                         {message.message}
                         <span className="chat__timestamp">
@@ -62,7 +114,7 @@ function Chat({messages,email,room}) {
                     
                         </p>
                     ): (
-                        <p className="chat__message chat__receiver"> 
+                        <p key={message._id} className="chat__message chat__receiver"> 
                             <span className="chat__name"> {message.name}</span>
                             {message.message}
                             <span className="chat__timestamp">
@@ -72,13 +124,7 @@ function Chat({messages,email,room}) {
                         </p>
                         
                     )
-
-
-                ))};
-                
-
-                
-
+                ))}
 
             </div>
 
@@ -87,7 +133,10 @@ function Chat({messages,email,room}) {
                     <InsertEmoticonIcon/>
                 </IconButton>
                 <form>
-                    <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type a message" type="text"/>
+                    <input 
+                        value={input} 
+                        onChange={(e) => setInput(e.target.value)} 
+                        placeholder="Type a message" type="text"/>
                     <button type="submit" onClick={sendMessage} >Type a message</button>
                 </form>
                 <IconButton>
