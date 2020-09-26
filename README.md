@@ -22,21 +22,21 @@ To run the backend:
 - `nodemon server.js` to run the backend
 
 Tools or APIs used for this project:
-frontend :
-react.js : lightweight Javascript library by Facebook
-react-router-dom : mainly to navigate or routing
-axios : Javascript library to make HTTP requests
-firebase : used for authentication
+## Frontend
+  - react.js : lightweight Javascript library by Facebook
+  - react-router-dom : mainly to navigate or routing
+  - axios : Javascript library to make HTTP requests
+  - firebase : used for authentication
 
 
-backend :
-node.js : Javascript run time environment that runs outside of browser.
-express : nodejs framework that provides robust features for web development.
-cors : enables open access across domain boundaries.
-mongoDb : NoSQL DB.
-mongoose : mongoDB Object modelling.
-pusher : mongoDB is not a real-time database, therefore pusher-API (similar to socket.io) is used to forward any changes in DB. 
-Postman : simplifies HTTP methods to test mongoose commands as well as test DB.
+## Backend 
+  - node.js : Javascript run time environment that runs outside of browser.
+  - express : nodejs framework that provides robust features for web development.
+  - cors : enables open access across domain boundaries.
+  - mongoDb : NoSQL DB.
+  - mongoose : mongoDB Object modelling.
+  - pusher : mongoDB is not a real-time database, therefore pusher-API (similar to socket.io) is used to forward any changes in DB. 
+  - Postman : simplifies HTTP methods to test mongoose commands as well as test DB.
 
 
 ## Functionality overview
